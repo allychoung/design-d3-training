@@ -9,6 +9,7 @@ import { BarChartComponent } from './bar-chart/bar-chart.component';
 import { NavComponent } from './nav/nav.component';
 import { DataPointsComponent } from './data-points/data-points.component';
 import { DefinitionsComponent } from './definitions/definitions.component';
+import { AVizComponent } from './a-viz/a-viz.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { DefinitionsComponent } from './definitions/definitions.component';
     BarChartComponent,
     NavComponent,
     DataPointsComponent,
-    DefinitionsComponent
+    DefinitionsComponent,
+    AVizComponent
   ],
   imports: [
     BrowserModule,

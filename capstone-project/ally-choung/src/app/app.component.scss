@@ -13,8 +13,8 @@ p, h1, h2, h3, span, a {
 
 .header {
     align-content: center;
-    margin-top: 1em;
-    margin-bottom: 1em;
+    margin-top: 2em;
+    margin-bottom: 2em;
     text-align: center;
     font-size: 12px;
     .app-title {
@@ -24,6 +24,10 @@ p, h1, h2, h3, span, a {
     }
     p {
         margin: 0;
+    }
+
+    a {
+        text-decoration: none;
     }
 }
 
