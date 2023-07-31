@@ -1,0 +1,30 @@
+.active {
+    background-color: #9C9C9C;
+}
+
+.btn {
+    padding: .5em 1.5em .5em 1.5em;
+    margin-left: 5px;
+    border-radius: 15px;
+    border: 1px solid #000;
+}
+
+a {
+    text-decoration: none;
+    color: black;
+    font-size: 18px;
+    line-height: normal;
+}
+a:hover {
+}
+
+ul {
+    display: flex;
+    flex: row;
+    list-style-type: none;
+    padding: 0;
+}
+
+.text {
+    text-align: center;
+}

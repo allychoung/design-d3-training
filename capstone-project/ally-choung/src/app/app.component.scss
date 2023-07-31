@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
+
+
+.row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+p, h1, h2, h3, span, a {
+    font-family: Inter;
+}
+
+.header {
+    align-content: center;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    text-align: center;
+    font-size: 12px;
+    .app-title {
+        font-size: 24px;
+        font-weight: 400;
+        line-height: normal;    
+    }
+    p {
+        margin: 0;
+    }
+}
+
+
+.italic {
+    font-style: italic;
+}
