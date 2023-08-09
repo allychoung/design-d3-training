@@ -1,8 +1,23 @@
 {
+  "eslint.options": {
+    "extensions": [".ts", ".html"]
+  },
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "html"
+  ],
   "workbench.colorCustomizations": {
-    "titleBar.activeBackground": "#ff9900",
-    "titleBar.activeForeground": "#000000",
-    "titleBar.inactiveBackground": "#ff9900",
-    "titleBar.inactiveForeground": "#000000"
-  }
+    "titleBar.activeBackground": "#e04b25",
+    "titleBar.activeForeground": "#ffffff",
+    "titleBar.inactiveBackground": "#e04b25",
+    "titleBar.inactiveForeground": "#ffffff"
+  },
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": true
+  },
+  "typescript.tsdk": "node_modules\\typescript\\lib",
+  "editor.formatOnSave": true
 }

@@ -1,5 +1,11 @@
 # AllyChoung
 
+Sources and links: 
+(https://stackoverflow.com/questions/70615612/d3-topojson-u-s-map-resizing-in-angular)
+(https://stackoverflow.com/questions/56516358/d3-js-set-fitextent-or-fitsize-or-center-and-scale-programmatically-for-map-w)
+(https://gyawaliamit.medium.com/reading-csv-file-on-angular-5694b64faaa5)
+(https://blog.logrocket.com/data-visualization-angular-d3-js/)
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.0.5.
 
 ## Development server
