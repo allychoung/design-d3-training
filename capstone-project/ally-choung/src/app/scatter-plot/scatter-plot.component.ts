@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import * as d3 from 'd3';
+import { CountyData, METRICS } from '../data';
 import { DataService } from '../data.service';
 
 @Component({
@@ -23,16 +24,25 @@ export class ScatterPlotComponent implements OnInit {
     bottom: 50
   };
 
-  countyData: any[] = [];
+  metrics = METRICS;
 
-  constructor(data: DataService) {
-    data.getCountyData().then((response) => {
-      this.countyData = response;
-      console.log('here')
-    })
+  countyData: CountyData[] = [];
+
+  constructor(private dataService: DataService) {
+  }
+  
+  ngOnInit(): void {
+    this.dataService.countyData.subscribe((data) => {
+      if (data) {
+        this.countyData = data;
+      }
+        // if (this.dataService.state) {
+        //     this.filteredData = this.data.filter((d) => d.state_fips === this.dataService.state.code);
+        // }
+    });
   }
 
-  ngOnInit(): void {
+  ngAfterViewInit(): void {
     this.svg = d3.select('div#scatter-plot')
       .append("svg")
       .attr("width", this.dims.width)
@@ -50,7 +60,7 @@ export class ScatterPlotComponent implements OnInit {
 
     // // your code goes here
     // const xScale = d3.scaleTime()
-    //   .domain([d3.min(this.countyData, p => new Date(p.year)),
+    //   .domain([d3.min(this.countyData, p => p.metrics.care[0].value),
     //           d3.max(this.countyData, p => new Date(p.year))])
     //   .range([0, this.dims.width - this.margins.right - this.margins.left]); 
 

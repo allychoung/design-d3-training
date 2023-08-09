@@ -7,8 +7,9 @@
     justify-content: space-between;
 }
 
-p, h1, h2, h3, span, a {
+p, h1, h2, h3, span, a, label {
     font-family: Inter;
+    font-weight: 400;
 }
 
 .header {
@@ -34,4 +35,12 @@ p, h1, h2, h3, span, a {
 
 .italic {
     font-style: italic;
+}
+
+.border-box {
+    max-width: 20vw;
+    border: 1px solid #000;
+    background: #FFF;
+    padding: 0.5em;
+    margin-bottom: 1em;
 }

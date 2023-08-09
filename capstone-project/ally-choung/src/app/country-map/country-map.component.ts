@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import * as d3 from 'd3';
 import { ExtendedGeometryCollection } from 'd3';
 import * as countiesGeoJson from '../../assets/counties-albers-10m.json';
+import { METRICS } from '../data';
 
 @Component({
   selector: 'app-country-map',
@@ -17,6 +18,7 @@ export class CountryMapComponent implements OnInit {
     width: 900
   };
 
+  metrics = METRICS;
   part1Margins = {
     left: 50,
     right: 50,
