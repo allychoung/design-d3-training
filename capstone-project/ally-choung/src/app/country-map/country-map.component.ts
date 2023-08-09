@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import * as d3 from 'd3';
 import { ExtendedGeometryCollection } from 'd3';
-import * as countiesGeoJson from '../data/counties-albers-10m.json';
+import * as countiesGeoJson from '../../assets/counties-albers-10m.json';
 
 @Component({
   selector: 'app-country-map',
@@ -11,7 +11,7 @@ import * as countiesGeoJson from '../data/counties-albers-10m.json';
 export class CountryMapComponent implements OnInit {
   svg: any;
   data: any[] | undefined;
-
+  
   part1Dims = {
     height: 600,
     width: 900

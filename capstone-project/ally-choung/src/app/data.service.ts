@@ -1,18 +1,14 @@
-import { CountyData } from "./data";
+import { Injectable } from '@angular/core';
+import * as d3 from 'd3';
 
-export class DataService {
-    private data: CountyData[] = [];
-  
-    // constructor(
-    //   private backend: BackendService,
-    //   private logger: Logger) { }
-  
+@Injectable({
+    providedIn: 'root',
+})
+export class DataService {    
     constructor() {
-        fetch('./data/SDOH_2020_COUNTY_1_0.csv')
-            .then((response) => response.json());
     }
 
-    getCountyData() {
-
+    getCountyData(): Promise<Array<any>> {
+        return d3.csv('assets/SDOH_2020_COUNTY_1_0.csv', d3.autoType);
     }
 }
