@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import * as d3 from 'd3';
-import { CountyData, METRICS } from '../data';
+import { CountyData, METRICS, ScatterState } from '../data';
 import { DataService } from '../data.service';
 
 @Component({
@@ -9,13 +9,23 @@ import { DataService } from '../data.service';
   providers: [DataService],
   styleUrls: ['./scatter-plot.component.scss', '../app.component.scss']
 })
-export class ScatterPlotComponent implements OnInit {
-  svg: any;
-
+export class ScatterPlotComponent implements OnInit, AfterViewInit {
+  svg: any = null;
+  g: any = null;
+  circle: any = null;
+  xAxisGroup: any = null;
+  yAxisGroup: any = null;
   dims = {
     height: 500,
-    width: 960
+    width: 800
   };
+
+  state: ScatterState = {
+    x: 'SAIPE_PCT_POV',
+    y: 'AMFAR_MEDMHFAC_RATE',
+    fips: [],
+  };
+
 
   margins = {
     left: 100,
@@ -27,59 +37,53 @@ export class ScatterPlotComponent implements OnInit {
   metrics = METRICS;
 
   countyData: CountyData[] = [];
+  // countyData: any[] = this.dataService.countyData;
+
+  xScale = d3.scaleLinear()
+    .range([0, this.dims.width - this.margins.right - this.margins.left]); 
+  
+  yScale = d3.scaleLinear()
+    .range([this.dims.height - this.margins.bottom - this.margins.top, 0]);
 
   constructor(private dataService: DataService) {
+    this.dataService.countyData$.subscribe((data) => {
+      if (data) {
+        console.log('setting data');
+        this.countyData = data;
+        if (!this.circle) {
+          this.setScales();
+          this.updatePlot();
+        }
+      }
+    });
+
+    this.dataService.scatterState$.subscribe((state) => {
+      if (state) {
+        console.log('updating subscribe state');
+        this.state = state;
+        this.updatePlot();
+      }
+    })
   }
   
   ngOnInit(): void {
-    this.dataService.countyData.subscribe((data) => {
-      if (data) {
-        this.countyData = data;
-      }
-        // if (this.dataService.state) {
-        //     this.filteredData = this.data.filter((d) => d.state_fips === this.dataService.state.code);
-        // }
-    });
+    if (!this.svg) {
+      this.drawPlot();
+    }
+
+    // this.dataService.countyData.subscribe((data) => {
+    //   if (data) {
+    //     this.countyData = data;
+    //   }
+    //     // if (this.dataService.state) {
+    //     //     this.filteredData = this.data.filter((d) => d.state_fips === this.dataService.state.code);
+    //     // }
+    // });
   }
 
   ngAfterViewInit(): void {
-    this.svg = d3.select('div#scatter-plot')
-      .append("svg")
-      .attr("width", this.dims.width)
-      .attr("height", this.dims.height)
-      .attr("viewBox", [0, 0, this.dims.width, this.dims.height])
-      .attr("style", "max-width: 100%; height: auto; height: intrinsic;");
-
-    // append a group element to the svg and offset it by the top and left margins
-    const g = this.svg
-      .append("g")
-      .attr(
-        "transform",
-        "translate(" + this.margins.left + "," + this.margins.top + ")"
-      );
-
-    // // your code goes here
-    // const xScale = d3.scaleTime()
-    //   .domain([d3.min(this.countyData, p => p.metrics.care[0].value),
-    //           d3.max(this.countyData, p => new Date(p.year))])
-    //   .range([0, this.dims.width - this.margins.right - this.margins.left]); 
-
-
-    // const yScale = d3.scaleLinear()
-    //   .domain([d3.max(this.countyData, p => parseFloat(p.pop) / 1000000),
-    //           0])
-    //   .range([0, this.dims.height - this.margins.bottom - this.margins.top]);
-
+    // this.drawPlot();
     
-    // // sort population data by country 
-    // const dateSorter = (a, b) => new Date(a).getFullYear() > new Date(b).getFullYear() ? 1 : -1; 
-    // const countries = [...new Set(this.countyData.map(p => p.country))];
-    // const sortedData = countries.map(c => d3.sort(this.countyData.filter(p => p.country === c), dateSorter));
-
-
-    // // color scheme
-    // const getCountryColor = (r) => d3.schemeCategory10[(countries.indexOf(r))];
-
     // // axes 
     // const xAxis = d3.axisBottom(xScale);
 
@@ -112,31 +116,6 @@ export class ScatterPlotComponent implements OnInit {
     //   .call(yAxis);
 
 
-    // const legend = g.append('g')
-    //   .attr('transform', `translate(${this.dims.width - this.margins.left - this.margins.right - 150}, 
-    //                                 ${this.dims.height - this.margins.top - this.margins.bottom - 150})`);
-
-
-    // legend.selectAll('rect')
-    //   .data(countries)
-    //   .join('rect')
-    //     .attr('fill', c => getCountryColor(c))
-    //     .attr('width', 15)
-    //     .attr('height', 15)
-    //     .attr('x', 0)
-    //     .attr('y', (c, i) => 20 * i);
-
-
-    // legend.selectChildren('text')
-    //   .data(countries)
-    //   .join('text')
-    //     .attr("font-family", "sans-serif")
-    //     .attr("font-size", 12)
-    //     .attr('x', 20)
-    //     .attr('y', (c, i) => 13 + 20 * i)
-    //     .text(c => c);
-
-
     // this.svg.append("text")
     //   .attr("font-family", "sans-serif")
     //   .attr("font-size", 24)
@@ -158,4 +137,75 @@ export class ScatterPlotComponent implements OnInit {
     //   .text("Population (in millions)")
   }
 
+  setScales(): void {
+    if (this.countyData && this.countyData.length > 0) {
+      this.xScale.domain(d3.extent(this.countyData, c => c.metrics.population[0].value) as number[]);
+      this.yScale.domain(d3.extent(this.countyData, c => c.metrics.care[0].value) as number[]);
+      // console.log(this.xScale.domain());
+      // console.log(this.yScale.domain());
+    }
+    const xAxis = d3.axisBottom(this.xScale);
+
+    const yAxis = d3.axisLeft(this.yScale);
+
+
+    this.xAxisGroup = this.g.append('g')
+      .attr('class', 'x-axis')
+      .attr('transform', `translate(0, ${this.yScale(this.yScale.range()[1])})`)
+      .call(xAxis)  
+    
+    this.yAxisGroup = this.g.append('g')
+        .attr('class', 'y-axis')
+        .attr('transform', `translate(0, 0)`)
+        .call(yAxis);
+
+  }
+
+  updatePlot(): void {
+    this.circle = this.g.selectAll('circle')
+      .data( this.countyData, (d: CountyData) => d.fipsCode )
+      .join('circle')
+        .attr('stroke', 'black')
+        .attr('stroke-width', 2)
+        .attr('fill', 'none')
+        .attr('r', 2)
+        .attr('cx', (c: CountyData) => {
+          const metric = c.metrics.population.findIndex(p => p.code === this.state.x);
+          return this.xScale(c.metrics.population[metric].value)
+        })
+        .attr('cy', (c: CountyData) => {
+          const metric = c.metrics.care.findIndex(p => p.code === this.state.y);
+          return this.yScale(c.metrics.care[metric].value)
+        })
+  }
+
+  drawPlot(): void {
+    this.svg = d3.select('div#scatter-plot')
+      .append("svg")
+      .attr("width", this.dims.width)
+      .attr("height", this.dims.height)
+      .attr("viewBox", [0, 0, this.dims.width, this.dims.height])
+      .attr("style", "max-width: 100%; height: auto; height: intrinsic;");
+
+    // append a group element to the svg and offset it by the top and left margins
+    this.g = this.svg
+      .append("g")
+      .attr(
+        "transform",
+        "translate(" + this.margins.left + "," + this.margins.top + ")"
+      );
+
+    // this.setScales();
+  }
+
+  updateState(val: string, axis: string):void {
+    let newState = this.state;
+    if (axis === 'x') {
+      newState = {...newState, x: val};
+    } else if (axis === 'y') {
+      newState = {...newState, y: val};
+    }
+
+    this.dataService.updateScatter(this.state);
+  }
 }

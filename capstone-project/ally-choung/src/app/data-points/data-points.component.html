@@ -1,7 +1,13 @@
 <div class="border-box">
     <p>{{boxTitle}}</p>
-    <div class="point-container" *ngFor="let point of dataPoints">
-        <input type="radio" id="{{point.code}}" name="{{metricType}}" value="{{point.code}}" (click)="clickBtn(point.code)">
+    <div class="point-container" *ngFor="let point of dataPoints; let i = index">
+        <input 
+            type="radio" 
+            id="{{point.code}}" 
+            name="{{metricType}}" 
+            value="{{point.code}}" 
+            [checked]="selectedId === point.code"
+            (click)="clickBtn(point.code)">
         <label for="{{point.code}}">{{point.title}}</label><br>
     </div>
 

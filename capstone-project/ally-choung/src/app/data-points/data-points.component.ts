@@ -1,15 +1,17 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ColumnData } from '../data';
 
 @Component({
   selector: 'app-data-points',
   templateUrl: './data-points.component.html',
-  styleUrls: ['./data-points.component.scss', '../app.component.scss']
+  styleUrls: ['./data-points.component.scss', '../app.component.scss'],
 })
 export class DataPointsComponent implements OnInit {
 
   @Input() metricType: string = '';
   @Input() dataPoints: ColumnData[] = [];
+  @Input() selectedId: string = '';
+  @Output() emitClick = new EventEmitter<string>();
 
   boxTitle = 'Data Points';
   constructor() {}
@@ -23,7 +25,10 @@ export class DataPointsComponent implements OnInit {
 
 
   clickBtn(codeId: string) {
-    throw new Error('Method not implemented.');
+    if (codeId !== this.selectedId) {
+      this.selectedId = codeId;
+      this.emitClick.emit(codeId);
+    }
   }
     
 }

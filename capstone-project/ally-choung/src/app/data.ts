@@ -3,6 +3,12 @@ export interface State {
     selectedOptions: UserOption[];
 }
 
+export interface ScatterState {
+    x: string, 
+    y: string, 
+    fips: string[],
+}
+
 export enum StateType {
     countryMap = 'MAP',
     scatterPlot = 'PLOT',

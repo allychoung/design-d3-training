@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col">
-        <app-data-points [dataPoints]="metrics.population" [metricType]="'population'"></app-data-points>
-        <app-data-points [dataPoints]="metrics.care" [metricType]="'care'"></app-data-points>
+        <app-data-points (emitClick)="updateState($event, 'x')" [selectedId]="state.x" [dataPoints]="metrics.population" [metricType]="'population'"></app-data-points>
+        <app-data-points (emitClick)="updateState($event, 'y')" [selectedId]="state.y" [dataPoints]="metrics.care" [metricType]="'care'"></app-data-points>
         <app-definitions></app-definitions>
     </div>
     <div id="scatter-plot"></div>
