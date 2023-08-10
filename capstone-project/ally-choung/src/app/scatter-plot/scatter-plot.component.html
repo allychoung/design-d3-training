@@ -4,5 +4,8 @@
         <app-data-points (emitClick)="updateState($event, 'y')" [selectedId]="state.y" [dataPoints]="metrics.care" [metricType]="'care'"></app-data-points>
         <app-definitions></app-definitions>
     </div>
-    <div id="scatter-plot"></div>
+    <div class="col">
+        <p>{{(state.x) + ' v. ' + (state.y)}}</p>
+        <div id="scatter-plot"></div>
+    </div>
 </div>

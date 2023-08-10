@@ -1,0 +1,19 @@
+.dropdown-container {
+    width: 10vw;
+    margin-right: 0.5em;
+    height: 50vh;
+    overflow-y: auto;
+    padding: 0;
+}
+
+.dropdown-item {
+    &:hover {
+        background-color: lightblue;
+    }
+    padding: 2px;
+}
+
+svg {
+    height: 50vh;
+    overflow-y: auto;
+}

@@ -51,6 +51,11 @@ export interface ColumnData {
     definition: string,
 }
 
+export interface SortQuery {
+    countyFips: string[],
+    stateFips: string[]
+}
+
 export interface MetricsData {
     care: ColumnData[];
     population: ColumnData[];

@@ -1,1 +1,27 @@
-<p>bar-chart works!</p>
+<div class="row">
+    <div class="col">
+        <div class="row">
+            <div class="dropdown-container border-box">
+                <div *ngFor="let state of (dataService.stateList$ | async)">
+                    <div class="dropdown-item" (click)="stateClicked(state)">
+                        {{state}}
+                    </div>
+                </div>
+            </div>
+            <div class="dropdown-container border-box" *ngIf="sortsState.stateFips.length == 0"></div>
+            <div class="dropdown-container border-box" *ngIf="sortsState.stateFips.length > 0">
+                <div *ngFor="let county of sortData">
+                    <div class="dropdown-item" (click)="countyClicked(county.fipsCode)">
+                        {{county.countyName + ", " + county.state}}
+                    </div>
+                </div>
+            </div>    
+        </div>
+    </div>
+    <div class="col">
+        <div id="bar-chart"></div>
+    </div>
+    <div class="col">
+        <app-definitions></app-definitions>
+    </div>
+</div>

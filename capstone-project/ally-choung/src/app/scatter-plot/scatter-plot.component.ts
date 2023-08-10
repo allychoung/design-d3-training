@@ -51,7 +51,7 @@ export class ScatterPlotComponent implements OnInit, AfterViewInit {
   xAxis = d3.axisBottom(this.xScale);
   yAxis = d3.axisLeft(this.yScale);
   
-  constructor(private dataService: DataService) {
+  constructor(public dataService: DataService) {
     this.dataService.countyData$.subscribe((data) => {
       if (data) {
         console.log('setting data');

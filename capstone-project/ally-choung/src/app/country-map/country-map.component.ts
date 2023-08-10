@@ -17,7 +17,7 @@ export class CountryMapComponent implements OnInit {
   
   part1Dims = {
     height: 500,
-    width: 900
+    width: 800  
   };
 
   state: MapState = {

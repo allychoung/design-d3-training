@@ -10,8 +10,10 @@ export class DataService {
     countyData$ = new BehaviorSubject<CountyData[]>([]);
     countyData: CountyData[] = [];
 
-    // geoData$ = new BehaviorSubject<CountyData[]>([]);
-    // geoData: CountyData[] = [];
+    // sortedData$ = new BehaviorSubject<CountyData[]>([]);
+    // sortedData: CountyData[] = [];
+    stateList$ = new BehaviorSubject<string[]>([]);
+    stateList: string[] = [];
 
     selectionState$ = new BehaviorSubject<any>(null);
     selectionState: {bar: string[], scatter: string[], map: string[]} = {
@@ -20,7 +22,11 @@ export class DataService {
         map: [],
     };
 
-    scatterState$ = new BehaviorSubject<any>(null);
+    scatterState$ = new BehaviorSubject<ScatterState>({
+        x: 'SAIPE_PCT_POV',
+        y: 'AMFAR_MEDMHFAC_RATE',
+        fips: [],
+    });
     scatterState: ScatterState = {
         x: 'SAIPE_PCT_POV',
         y: 'AMFAR_MEDMHFAC_RATE',
@@ -33,6 +39,11 @@ export class DataService {
         point: 'AMFAR_MEDMHFAC_RATE',
         statePicked: undefined
     };
+
+    // sortData(sorts: SortQuery): void {
+    //     const newData: CountyData[] = this.sortedData
+    //     this.sortedData$.next()
+    // }
 
 
     updateScatter(newState: ScatterState): void {
@@ -59,11 +70,9 @@ export class DataService {
     constructor() {
         d3.csv('assets/SDOH_2020_COUNTY_1_0.csv', d3.autoType).then((data) => {
             const cleanedData = this.cleanData(data);
-            // this.countyData = cleanedData;
             this.countyData$.next(cleanedData);
-            d3.json('assets/us-counties.json').then((data) => {
-                // TODO merge with county data
-            });
+            this.stateList$.next([...new Set(cleanedData.map(c => c.state))]);
+            // this.sortedData$.next(cleanedData);
         });
 
         this.scatterState$.next(this.scatterState);
