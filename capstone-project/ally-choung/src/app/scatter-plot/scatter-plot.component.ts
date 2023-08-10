@@ -202,6 +202,9 @@ export class ScatterPlotComponent implements OnInit, AfterViewInit {
   }
 
   updatePlot(): void {
+    if (!this.g) {
+      return;
+    }
     console.log('updating plot')
     this.circle = this.g.selectAll('circle')
       .data( this.countyData, (d: CountyData) => d.fipsCode )

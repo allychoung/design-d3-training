@@ -9,6 +9,11 @@ export interface ScatterState {
     fips: string[],
 }
 
+export interface MapState {
+    point: string, 
+    statePicked: string | undefined,
+}
+
 export enum StateType {
     countryMap = 'MAP',
     scatterPlot = 'PLOT',

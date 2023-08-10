@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as d3 from 'd3';
 import { BehaviorSubject } from 'rxjs';
-import { CountyData, METRICS, ScatterState } from './data';
+import { CountyData, METRICS, MapState, ScatterState } from './data';
 
 @Injectable({
     providedIn: 'root',
@@ -9,6 +9,9 @@ import { CountyData, METRICS, ScatterState } from './data';
 export class DataService {    
     countyData$ = new BehaviorSubject<CountyData[]>([]);
     countyData: CountyData[] = [];
+
+    // geoData$ = new BehaviorSubject<CountyData[]>([]);
+    // geoData: CountyData[] = [];
 
     selectionState$ = new BehaviorSubject<any>(null);
     selectionState: {bar: string[], scatter: string[], map: string[]} = {
@@ -24,8 +27,20 @@ export class DataService {
         fips: [],
     };
 
+
+    mapState$ = new BehaviorSubject<any>(null);
+    mapState: MapState = {
+        point: 'AMFAR_MEDMHFAC_RATE',
+        statePicked: undefined
+    };
+
+
     updateScatter(newState: ScatterState): void {
         this.scatterState$.next(newState);        
+    }
+
+    updateMap(newState: MapState): void {
+        this.mapState$.next(newState);        
     }
 
 
@@ -52,6 +67,8 @@ export class DataService {
         });
 
         this.scatterState$.next(this.scatterState);
+        this.mapState$.next(this.mapState);
+
     }
 
     getCountyData(): Promise<CountyData[]> {
