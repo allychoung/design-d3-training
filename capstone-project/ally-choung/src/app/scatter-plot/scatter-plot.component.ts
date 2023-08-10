@@ -15,6 +15,9 @@ export class ScatterPlotComponent implements OnInit, AfterViewInit {
   circle: any = null;
   xAxisGroup: any = null;
   yAxisGroup: any = null;
+  xLabel: any = null;
+  yLabel: any = null;
+
   dims = {
     height: 500,
     width: 800
@@ -45,6 +48,9 @@ export class ScatterPlotComponent implements OnInit, AfterViewInit {
   yScale = d3.scaleLinear()
     .range([this.dims.height - this.margins.bottom - this.margins.top, 0]);
 
+  xAxis = d3.axisBottom(this.xScale);
+  yAxis = d3.axisLeft(this.yScale);
+  
   constructor(private dataService: DataService) {
     this.dataService.countyData$.subscribe((data) => {
       if (data) {
@@ -59,8 +65,9 @@ export class ScatterPlotComponent implements OnInit, AfterViewInit {
 
     this.dataService.scatterState$.subscribe((state) => {
       if (state) {
-        console.log('updating subscribe state');
+        console.log(state);
         this.state = state;
+        this.setScales();
         this.updatePlot();
       }
     })
@@ -70,15 +77,6 @@ export class ScatterPlotComponent implements OnInit, AfterViewInit {
     if (!this.svg) {
       this.drawPlot();
     }
-
-    // this.dataService.countyData.subscribe((data) => {
-    //   if (data) {
-    //     this.countyData = data;
-    //   }
-    //     // if (this.dataService.state) {
-    //     //     this.filteredData = this.data.filter((d) => d.state_fips === this.dataService.state.code);
-    //     // }
-    // });
   }
 
   ngAfterViewInit(): void {
@@ -138,45 +136,102 @@ export class ScatterPlotComponent implements OnInit, AfterViewInit {
   }
 
   setScales(): void {
-    if (this.countyData && this.countyData.length > 0) {
-      this.xScale.domain(d3.extent(this.countyData, c => c.metrics.population[0].value) as number[]);
-      this.yScale.domain(d3.extent(this.countyData, c => c.metrics.care[0].value) as number[]);
-      // console.log(this.xScale.domain());
-      // console.log(this.yScale.domain());
+    if (this.countyData.length == 0) {
+      return;
     }
-    const xAxis = d3.axisBottom(this.xScale);
+    this.xScale.domain(d3.extent(this.countyData, (c: CountyData) => {
+      const metric = c.metrics.population.findIndex(p => p.code === this.state.x);
+      return c.metrics.population[metric].value
+    }) as number[]);
 
-    const yAxis = d3.axisLeft(this.yScale);
+    this.yScale.domain(d3.extent(this.countyData, (c: CountyData) => {
+      const metric = c.metrics.care.findIndex(p => p.code === this.state.y);
+      return c.metrics.care[metric].value
+    }) as number[]);
 
+    
+    // this.yScale.domain(d3.extent(this.countyData, c => c.metrics.care[0].value) as number[]);
+    const xMetric = this.metrics.population.find(p => p.code === this.state.x)?.title;
 
-    this.xAxisGroup = this.g.append('g')
+    if (!this.xAxisGroup) {
+      this.xAxisGroup = this.g.append('g')
       .attr('class', 'x-axis')
       .attr('transform', `translate(0, ${this.yScale(this.yScale.range()[1])})`)
-      .call(xAxis)  
-    
-    this.yAxisGroup = this.g.append('g')
+      .call(this.xAxis)  
+
+
+      this.xLabel = this.g.append("text")
+        .attr('id', 'xlabel')
+        .attr("transform", `translate(${(this.dims.width - this.margins.left - this.margins.right) / 3}, ${this.yScale(0) + 30})`)
+        .text(xMetric);  
+    }
+    const yMetric = this.metrics.care.find(p => p.code === this.state.y)?.title;
+
+    if (!this.yAxisGroup) {
+      this.yAxisGroup = this.g.append('g')
         .attr('class', 'y-axis')
         .attr('transform', `translate(0, 0)`)
-        .call(yAxis);
+        .call(this.yAxis);
+
+
+      this.yLabel = this.g.append("text")
+        .attr('id', 'ylabel')
+        .attr('font-size', '10px')
+        .attr("transform", `translate(${-1 * this.margins.left + 50}, ${this.dims.height / 2 + 150}) rotate(270)`)
+        .text(yMetric)
+    }
+
+    this.xAxisGroup.transition()
+      .duration(20)
+        .call(this.xAxis)
+        .selectAll(".tick")
+        .delay((_:any, i: number) => i * 20);
+
+    this.yAxisGroup.transition()
+      .duration(20)
+        .call(this.yAxis)
+        .selectAll(".tick")
+        .delay((_:any, i: number) => i * 20);
+
+    d3.select('text#xlabel')
+      .text('' + xMetric);
+    
+    d3.select('text#ylabel')
+      .text('' + yMetric);
 
   }
 
   updatePlot(): void {
+    console.log('updating plot')
     this.circle = this.g.selectAll('circle')
       .data( this.countyData, (d: CountyData) => d.fipsCode )
-      .join('circle')
-        .attr('stroke', 'black')
-        .attr('stroke-width', 2)
-        .attr('fill', 'none')
-        .attr('r', 2)
-        .attr('cx', (c: CountyData) => {
-          const metric = c.metrics.population.findIndex(p => p.code === this.state.x);
-          return this.xScale(c.metrics.population[metric].value)
-        })
-        .attr('cy', (c: CountyData) => {
-          const metric = c.metrics.care.findIndex(p => p.code === this.state.y);
-          return this.yScale(c.metrics.care[metric].value)
-        })
+      .join(
+        (enter: any) => enter.append('circle')
+          .attr('stroke', 'black')
+          .attr('stroke-width', 1)
+          .attr('fill', 'none')
+          .attr('r', 2)
+          .attr('cx', (c: CountyData) => {
+            const metric = c.metrics.population.findIndex(p => p.code === this.state.x);
+            return this.xScale(c.metrics.population[metric].value)
+          })
+          .attr('cy', (c: CountyData) => {
+            const metric = c.metrics.care.findIndex(p => p.code === this.state.y);
+            return this.yScale(c.metrics.care[metric].value)
+          }),
+        (update:any) => update
+          .transition().duration(1000)
+            .attr('cx', (c: CountyData) => {
+              const metric = c.metrics.population.findIndex(p => p.code === this.state.x);
+              return this.xScale(c.metrics.population[metric].value)
+            })
+            .attr('cy', (c: CountyData) => {
+              const metric = c.metrics.care.findIndex(p => p.code === this.state.y);
+              return this.yScale(c.metrics.care[metric].value)
+            })
+            .selection(),
+        (exit: any) => exit,
+      );
   }
 
   drawPlot(): void {
@@ -198,7 +253,7 @@ export class ScatterPlotComponent implements OnInit, AfterViewInit {
     // this.setScales();
   }
 
-  updateState(val: string, axis: string):void {
+  updateState(val: string, axis: string): void {
     let newState = this.state;
     if (axis === 'x') {
       newState = {...newState, x: val};
@@ -206,6 +261,6 @@ export class ScatterPlotComponent implements OnInit, AfterViewInit {
       newState = {...newState, y: val};
     }
 
-    this.dataService.updateScatter(this.state);
+    this.dataService.updateScatter(newState);
   }
 }
