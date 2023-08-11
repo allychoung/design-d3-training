@@ -7,6 +7,9 @@
     justify-content: space-between;
 }
 
+.col {
+    text-align: center;
+}
 p, h1, h2, h3, span, a, label {
     font-family: Inter;
     font-weight: 400;
@@ -39,8 +42,36 @@ p, h1, h2, h3, span, a, label {
 
 .border-box {
     max-width: 20vw;
-    border: 1px solid #000;
+    border-radius: 5px;
+    // border: 1px solid #000;
     background: #FFF;
     padding: 0.5em;
     margin-bottom: 1em;
+    background-color: rgb(190, 215, 240);
 }
+
+.center {
+    font-size: 15px;
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 5px;
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+  

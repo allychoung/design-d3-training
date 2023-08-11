@@ -1,10 +1,16 @@
 <div class="row">
     <div class="col">
         <app-data-points (emitClick)="updateState($event)" [metricType]="'care'" [selectedId]="state.point" [dataPoints]="metrics.care"></app-data-points>
+        <div class="border-box" id="quintiles">
+            <p>Legend</p>
+            <!-- <div class="key-item" *ngFor="let i in colorScale.quantiles()">
+                <div>{{i}}</div>
+            </div> -->
+        </div>
         <app-definitions></app-definitions>
     </div>
     <div class="col">
-        <p class="graph-title">{{state.point}}</p>
+        <p class="graph-title center">{{yTitle}}</p>
         <div id="country-map"></div>
     </div>
 </div>

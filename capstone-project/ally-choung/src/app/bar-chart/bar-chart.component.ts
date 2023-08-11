@@ -11,7 +11,8 @@ import { DataService } from '../data.service';
 export class BarChartComponent implements OnInit {
   svg:any = null;
   g:any = null;
-
+  legend: any =null;
+  keyItem: any;
   xGroup:any = null;
   yGroup:any = null;
   dims = {
@@ -63,6 +64,7 @@ export class BarChartComponent implements OnInit {
         this.sortData = data;
         this.setScales();
         this.drawGroups();
+        this.makeLegend();
       }
     })
   }
@@ -71,11 +73,11 @@ export class BarChartComponent implements OnInit {
     if (this.countyData.length == 0 ) {
       return;
     }
-    if (this.sortsState.countyFips.length == 0) {
-      this.yScale.domain([...Array(5).keys()].map((i: number) => {
-        return this.countyData[i].countyName  
-      }))  
-    } else {
+    // if (this.sortsState.countyFips.length == 0) {
+    //   this.yScale.domain([...Array(5).keys()].map((i: number) => {
+    //     return this.countyData[i].countyName  
+    //   }))  
+    if (this.sortsState.countyFips.length > 0) {
       this.yScale.domain(this.selectionData.map((c: CountyData) => {
           return c.countyName  
         }))  
@@ -94,16 +96,24 @@ export class BarChartComponent implements OnInit {
       this.xGroup = this.g.append("g")
       // .attr("transform", `translate(0,${7 * climateData.length})`)
       .call(d3.axisTop(this.xScale))
-      .attr("transform", `translate(0, ${0})`);
+      // .attr("transform", (c: )`translate(0, ${this.yScale(this.)})`);
+      this.xGroup = this.g.append("text")
+      .attr("transform", `translate(0,0)`)
+      .text('Percentage of county population')
+      .attr('font-size',10)
+      .attr("transform", 'translate(90,-25)');
+
     }
 
     if (!this.yGroup) {
       this.yGroup = this.g.append("g")
       .call(this.yAxis)
+      .selectAll('.tick')
+      // .attr('transform', `translate(0, ${this.dims.height / this.yScale.domain().length})`)
     }
 
     this.yGroup.transition()
-    .duration(20)
+    .duration(1000)
       .call(this.yAxis)
       .selectAll(".tick")
       .delay((_:any, i: number) => i * 20);
@@ -122,14 +132,28 @@ export class BarChartComponent implements OnInit {
       .join(
         (enter: any) => enter.append('g')
           .attr('class', 'bars')
-          .attr('transform', (c: CountyData, i: number) => `translate(0, ${this.yScale(c.countyName)})`),
+          .attr('transform', (c: CountyData, i: number) => `translate(0, ${this.yScale(c.countyName)})`)
+          .append('text')
+          .attr("transform", (c: CountyData, i: number) => `translate(-80, ${i * 11 + 30})`)
+          .attr("font-size", 10)
+          .text((c: CountyData) => c.countyName),
         (update: any) => update.transition().duration(1000)
           .attr('transform', (c: CountyData, i: number) => `translate(0, ${this.yScale(c.countyName)})`)
           .selection(),
         (exit: any) => exit,
-
-
       )
+
+    // group.selectChildren('text')
+    // .data((c: CountyData) => this.selectionData.find(s => s.fipsCode === c.fipsCode)?.metrics.disorder, 
+    //   (d: CountyData) => d.fipsCode)
+    // .join(
+    //   (enter: any) => enter.append('text')
+    //     .text((d: CountyDataItem, i: number) => d.)
+    //     .attr("transform", (c: CountyDataItem, i: number) => `translate(-40, ${i * 11})`),
+    //   (update: any) => update,
+    //   (exit: any) => exit,  
+    // )
+
 
     group.selectChildren('rect')
       .data((c: CountyData) => this.selectionData.find(s => s.fipsCode === c.fipsCode)?.metrics.disorder, 
@@ -144,6 +168,51 @@ export class BarChartComponent implements OnInit {
         (exit: any) => exit,  
       )
   }
+
+  makeLegend(): void {
+    if (!this.legend) {
+      this.legend = d3.select('div#quintiles').append('svg')
+      // .attr("width", this.part1Dims.width)
+      .attr("height", 120);
+    }
+
+    const tiles = [0, 1, 2, 3];
+    if (!this.keyItem) {
+      this.keyItem = this.legend.selectChildren('g') 
+      .data(tiles) // should have numpercentiles + 1
+      .join('g')
+      .attr('transform', (_: any, i: number) => `translate(0, ${25* i})`)
+
+    this.keyItem.append('rect')
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('width', 20)
+      .attr('height', 20)
+      .attr('stroke', 'black')
+      .attr('fill', (c: number, i: number) => (this.colorScale(c)));
+
+    this.keyItem.append('text')
+      .attr('x', 30)
+      .attr('y', 13)
+      .attr("font-size", 10)
+      .text((t: number, i: number) => {
+        if (t == 0) {
+          return 'Personality Disorders';
+        }
+        if (t == 1) {
+          return 'Bipolar Disorder';
+        }
+        if (t == 2) {
+          return 'Depressive Disorders';
+        } else {
+          return 'Anxiety Disorders';
+        }
+
+      })
+    }
+
+    }
+
   drawSvg(): void {
     this.svg = d3.select('div#bar-chart')
       .append("svg")

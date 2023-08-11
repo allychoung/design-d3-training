@@ -30,6 +30,7 @@ export class ScatterPlotComponent implements OnInit, AfterViewInit {
   };
 
 
+
   margins = {
     left: 100,
     right: 50,
@@ -38,6 +39,8 @@ export class ScatterPlotComponent implements OnInit, AfterViewInit {
   };
 
   metrics = METRICS;
+  xTitle = this.metrics.population.find(c => c.code === this.state.x)?.title;
+  yTitle = this.metrics.care.find(c => c.code === this.state.y)?.title;
 
   countyData: CountyData[] = [];
   // countyData: any[] = this.dataService.countyData;
@@ -67,6 +70,8 @@ export class ScatterPlotComponent implements OnInit, AfterViewInit {
       if (state) {
         console.log(state);
         this.state = state;
+        this.xTitle = this.metrics.population.find(c => c.code === state.x)?.title;
+        this.yTitle = this.metrics.care.find(c => c.code === this.state.y)?.title;
         this.setScales();
         this.updatePlot();
       }

@@ -17,3 +17,12 @@ svg {
     height: 50vh;
     overflow-y: auto;
 }
+
+.chip {
+    background-color: lightslategray;
+    border-radius: 5px;
+    margin-bottom: 2px;
+    &:hover {
+        background-color: rgb(236, 71, 71);
+    }
+}

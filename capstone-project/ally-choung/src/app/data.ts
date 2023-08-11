@@ -70,7 +70,7 @@ export enum MetricType {
 export const METRICS: MetricsData = {
     care: [
         { 
-            title: 'Total number of facilities that provide mental health services per 1,000 population',
+            title: 'Total number of facilities that accept Medicare and provide mental health services per 1,000 population',
             code: 'AMFAR_MEDMHFAC_RATE',
             definition: ''
         },
