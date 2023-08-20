@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import * as d3 from 'd3';
 import { CountyData, METRICS, ScatterState } from '../data';
 import { DataService } from '../data.service';
@@ -9,7 +9,7 @@ import { DataService } from '../data.service';
   providers: [DataService],
   styleUrls: ['./scatter-plot.component.scss', '../app.component.scss']
 })
-export class ScatterPlotComponent implements OnInit, AfterViewInit {
+export class ScatterPlotComponent implements OnInit {
   svg: any = null;
   g: any = null;
   circle: any = null;
@@ -43,7 +43,6 @@ export class ScatterPlotComponent implements OnInit, AfterViewInit {
   yTitle = this.metrics.care.find(c => c.code === this.state.y)?.title;
 
   countyData: CountyData[] = [];
-  // countyData: any[] = this.dataService.countyData;
 
   xScale = d3.scaleLinear()
     .range([0, this.dims.width - this.margins.right - this.margins.left]); 
@@ -57,7 +56,6 @@ export class ScatterPlotComponent implements OnInit, AfterViewInit {
   constructor(public dataService: DataService) {
     this.dataService.countyData$.subscribe((data) => {
       if (data) {
-        console.log('setting data');
         this.countyData = data;
         if (!this.circle) {
           this.setScales();
@@ -82,62 +80,6 @@ export class ScatterPlotComponent implements OnInit, AfterViewInit {
     if (!this.svg) {
       this.drawPlot();
     }
-  }
-
-  ngAfterViewInit(): void {
-    // this.drawPlot();
-    
-    // // axes 
-    // const xAxis = d3.axisBottom(xScale);
-
-    // const yAxis = d3.axisLeft(yScale);
-
-    // // draw the lines
-
-    // const line = d3.line()
-    //   .x(d => xScale(new Date(d.year)))
-    //   .y(d => yScale(parseFloat(d.pop) / 1000000))
-    //   .curve(d3.curveNatural)
-
-
-    // g.selectAll('path')
-    //   .data( sortedData )
-    //   .join('path')
-    //     .attr('d', line)
-    //     .style('stroke', c => getCountryColor(c[0].country))
-    //     .style('stroke-width', 2)
-    //     .style('fill', 'transparent');
-
-    // g.append('g')
-    //     .attr('class', 'x-axis')
-    //     .attr('transform', `translate(0, ${yScale(0)})`)
-    //   .call(xAxis)
-    
-    // g.append('g')
-    //     .attr('class', 'y-axis')
-    //     .attr('transform', `translate(0, 0)`)
-    //   .call(yAxis);
-
-
-    // this.svg.append("text")
-    //   .attr("font-family", "sans-serif")
-    //   .attr("font-size", 24)
-    //   .attr("x", this.margins.left)
-    //   .attr("y", this.margins.top / 2)
-    //   .text("Country Populations from 1960-2016")
-
-    // g.append("text")
-    //   .attr("font-family", "sans-serif")
-    //   .attr("font-size", 12)
-    //   .attr("transform", `translate(${(this.dims.width - this.margins.left - this.margins.right) /2}, ${yScale(0) + 30})`)
-    //   .text("Year")
-
-    // g.append("text")
-    //   .attr("font-family", "sans-serif")
-    //   .attr("font-size", 12)
-    //   .attr("text-anchor", "middle")
-    //   .attr("transform", `translate(${-1 * this.margins.left + 10}, ${this.dims.height / 2 - 50}) rotate(270)`)
-    //   .text("Population (in millions)")
   }
 
   setScales(): void {
@@ -257,8 +199,6 @@ export class ScatterPlotComponent implements OnInit, AfterViewInit {
         "transform",
         "translate(" + this.margins.left + "," + this.margins.top + ")"
       );
-
-    // this.setScales();
   }
 
   updateState(val: string, axis: string): void {

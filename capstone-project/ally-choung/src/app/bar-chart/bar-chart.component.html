@@ -4,18 +4,18 @@
             <div class="dropdown-container border-box">
                 <p>Select State:</p>
                 <div *ngFor="let state of (dataService.stateList$ | async)">
-                    <div class="dropdown-item" (click)="stateClicked(state)">
+                    <div class="dropdown-item" (click)="addState(state)" [ngClass]="{selected: inStateList(state)}">
                         {{state}}
                     </div>
                 </div>
             </div>
-            <div class="dropdown-container border-box" *ngIf="sortsState.stateFips.length == 0">
+            <div class="dropdown-container border-box" *ngIf="sortsState.stateFips.size == 0">
                 <p>Please select a state to narrow down your search first.</p>
             </div>
-            <div class="dropdown-container border-box" *ngIf="sortsState.stateFips.length > 0">
+            <div class="dropdown-container border-box" *ngIf="sortsState.stateFips.size > 0">
                 <p>Select County:</p>
                 <div *ngFor="let county of sortData">
-                    <div class="dropdown-item" (click)="countyClicked(county.fipsCode)">
+                    <div class="dropdown-item" (click)="addCounty(county.fipsCode)" [ngClass]="{selected: inCountyList(county.fipsCode)}">
                         {{county.countyName + ", " + county.state}}
                     </div>
                 </div>
@@ -24,23 +24,24 @@
         <div class="chip-container">
             <p>Selected states:</p>
             <div *ngFor="let state of sortsState.stateFips">
-                <div class="chip">X {{state}}</div>
+                <div class="chip" (click)="removeState(state)">X {{state}}</div>
             </div>
         </div>
         <div class="chip-container">
             <p>Selected counties:</p>
             <div *ngFor="let c of sortsState.countyFips">
-                <div class="chip">X {{c}}</div>
+                <div class="chip" (click)="removeCounty(c)">X {{getCountyNameByFips(c)}}</div>
             </div>
         </div>
     </div>
     <div class="col">
         <p class="center">Prevalence of Mental Health Disorders</p>
+        <div id="x-axis"></div>
         <div id="bar-chart"></div>
     </div>
     <div class="col">
         <app-definitions></app-definitions>
-        <div id="quintiles">
+        <div id="disorders-legend">
             <p>Legend</p>
         </div>
     </div>

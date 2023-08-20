@@ -157,14 +157,15 @@ export class CountryMapComponent implements OnInit {
             .attr('stroke', 'gray')
             .attr('stroke-width', .3)      
             .attr('d', this.geoGenerator),
-          (update: any) => update.transition().duration(1000)
+          (update: any) => update
           .attr('fill', (c: any) => {
               let d = c.care?.find((i: CountyDataItem) => i.code === this.state.point) as CountyDataItem;
               return d ? this.colorScale(+d.value) : 'white';
             }),
-        (exit: any) => exit,  
+        (exit: any) => exit.transition().duration(500)
+          .attr('')
+          .selection(),  
         )
-        // .attr('fill', 'green')
   }
 
   mergeData(): void {

@@ -1,35 +1,46 @@
 .active {
-    background-color: lightslategray;
-}
-
-.btn {
-    padding: .5em 1.5em .5em 1.5em;
-    margin-left: 5px;
-    border-radius: 15px;
-    border: 1px solid #000;
-
-    &:hover {
-        background-color: darkslategray;
-        color:white
-    }
+    background-color: white;
+    color: black;        
 }
 
 a {
+    color: white;
     text-decoration: none;
-    color: black;
-    font-size: 18px;
+    font-size: 14px;
     line-height: normal;
 }
-a:hover {
+
+.btn {
+    padding: .75em;
+    &:hover {
+        background-color: lightgray;
+        color: black;
+    }
+
 }
 
+span {
+    font-size: 12px;
+}
 ul {
     display: flex;
     flex: row;
     list-style-type: none;
     padding: 0;
+    margin: 0;
+    align-items: center;
 }
 
 .text {
     text-align: center;
+}
+
+nav {
+    width: 100%;
+    background-color: darkslategray;
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    color: white;
 }

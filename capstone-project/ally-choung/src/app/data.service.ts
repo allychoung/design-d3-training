@@ -1,13 +1,16 @@
 import { Injectable } from '@angular/core';
 import * as d3 from 'd3';
-import { BehaviorSubject } from 'rxjs';
-import { CountyData, METRICS, MapState, ScatterState } from './data';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { CountyData, METRICS, MapState, ScatterState, SortQuery } from './data';
 
 @Injectable({
     providedIn: 'root',
 })
 export class DataService {    
-    countyData$ = new BehaviorSubject<CountyData[]>([]);
+    // countyData$ = new BehaviorSubject<CountyData[]>([]);
+    // countyData: CountyData[] = [];
+
+    countyData$ = new Subject<CountyData[]>();
     countyData: CountyData[] = [];
 
     // sortedData$ = new BehaviorSubject<CountyData[]>([]);
@@ -15,24 +18,31 @@ export class DataService {
     stateList$ = new BehaviorSubject<string[]>([]);
     stateList: string[] = [];
 
-    selectionState$ = new BehaviorSubject<any>(null);
-    selectionState: {bar: string[], scatter: string[], map: string[]} = {
-        bar: [],
-        scatter: [],
-        map: [],
-    };
+    // selectionState$ = new BehaviorSubject<any>(null);
+    // selectionState: {bar: string[], scatter: string[], map: string[]} = {
+    //     bar: [],
+    //     scatter: [],
+    //     map: [],
+    // };
 
     scatterState$ = new BehaviorSubject<ScatterState>({
         x: 'SAIPE_PCT_POV',
         y: 'AMFAR_MEDMHFAC_RATE',
         fips: [],
     });
+
     scatterState: ScatterState = {
         x: 'SAIPE_PCT_POV',
         y: 'AMFAR_MEDMHFAC_RATE',
         fips: [],
     };
 
+    sortsState: SortQuery = {
+        stateFips: new Set(),
+        countyFips: new Set(),
+      };
+    sortsState$ = new BehaviorSubject<SortQuery>(this.sortsState);
+    
 
     mapState$ = new BehaviorSubject<any>(null);
     mapState: MapState = {
@@ -54,6 +64,10 @@ export class DataService {
         this.mapState$.next(newState);        
     }
 
+    updateBar(newState: SortQuery): void {
+        this.sortsState$.next(newState);        
+    }
+
 
     // private _state: State;
 
@@ -68,26 +82,23 @@ export class DataService {
     // stateChanged = new EventEmitter<boolean>();
 
     constructor() {
-        d3.csv('assets/SDOH_2020_COUNTY_1_0.csv', d3.autoType).then((data) => {
-            const cleanedData = this.cleanData(data);
-            this.countyData$.next(cleanedData);
-            this.stateList$.next([...new Set(cleanedData.map(c => c.state))]);
-            // this.sortedData$.next(cleanedData);
-        });
+        if (this.countyData.length == 0) {
+            console.log('data here');
+            d3.csv('assets/SDOH_2020_COUNTY_1_0.csv', d3.autoType).then((data) => {
+                const cleanedData = this.cleanData(data);
+                this.countyData = cleanedData;
+                this.countyData$.next(this.countyData);
+                this.stateList$.next([...new Set(cleanedData.map(c => c.state))]);
+            });
+        }
 
         this.scatterState$.next(this.scatterState);
         this.mapState$.next(this.mapState);
-
+        this.sortsState$.next(this.sortsState);
     }
 
-    getCountyData(): Promise<CountyData[]> {
-        return d3.csv('assets/SDOH_2020_COUNTY_1_0.csv', d3.autoType).then((data) => {
-            const cleanedData = this.cleanData(data);
-            return cleanedData;
-            // d3.json('assets/us-counties.json').then((data) => {
-            //     // TODO merge with county data
-            // });
-        });
+    getCountyData(): Observable<CountyData[]> {
+        return this.countyData$;
     }
 
     cleanData(data: any[]): CountyData[] {

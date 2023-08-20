@@ -52,8 +52,8 @@ export interface ColumnData {
 }
 
 export interface SortQuery {
-    countyFips: string[],
-    stateFips: string[]
+    stateFips: Set<string>,
+    countyFips: Set<string>,
 }
 
 export interface MetricsData {

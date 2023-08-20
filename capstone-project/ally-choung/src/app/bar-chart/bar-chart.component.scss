@@ -9,8 +9,13 @@
 .dropdown-item {
     &:hover {
         background-color: lightblue;
+        cursor: pointer;
     }
     padding: 2px;
+    &.selected {
+        background-color: lightslategray;
+        color: white;
+    }
 }
 
 svg {
@@ -20,9 +25,16 @@ svg {
 
 .chip {
     background-color: lightslategray;
+    color: white;
     border-radius: 5px;
     margin-bottom: 2px;
     &:hover {
         background-color: rgb(236, 71, 71);
+        cursor: pointer;
     }
+}
+
+#bar-chart {
+    overflow-y: auto;
+    height: 70%;
 }

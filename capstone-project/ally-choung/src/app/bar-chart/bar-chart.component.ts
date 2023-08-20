@@ -19,17 +19,23 @@ export class BarChartComponent implements OnInit {
       width: 500,
       height: 500
   }
+
+  BAR_HEIGHT = 10;
+  DISORDER_COUNT = 4;
   part2Margins = {
       left: 100,
       right: 50,
       top: 50,
       bottom: 50
+  };
+
+  sortsState: SortQuery = {
+    stateFips: new Set(),
+    countyFips: new Set(),
   }
 
   yScale = d3.scaleBand()
     .range([0, this.dims.height - (this.part2Margins.top + this.part2Margins.bottom)])
-
-  yAxis = d3.axisLeft(this.yScale)
 
   xScale = d3.scaleLinear()
     .range([0, (this.dims.width - (this.part2Margins.left + this.part2Margins.right))])
@@ -42,19 +48,13 @@ export class BarChartComponent implements OnInit {
   selectionData: CountyData[] = [];
 
   filteredStates: string[] = [];
-  sortsState: SortQuery = {
-    stateFips: [],
-    countyFips: []
-  };
-  // sortsState$ = new BehaviorSubject<any>(null);
-  
+  yAxis = () => d3.axisLeft(this.yScale)
+  // .tickValues(this.selectionData.map((c: CountyData) => c.countyName));
+
   constructor(public dataService: DataService) {
   }
+
   ngOnInit(): void {
-    // this.sortsState$.next(this.sortsState);
-    // this.sortsState$.subscribe((state) => {
-    //   console.log('sub')
-    // })
     if (!this.svg) {
       this.drawSvg();
     }
@@ -66,7 +66,16 @@ export class BarChartComponent implements OnInit {
         this.drawGroups();
         this.makeLegend();
       }
-    })
+    });
+
+    this.dataService.sortsState$.subscribe((state) => {
+      if (state) {
+        this.sortsState = state;
+        this.selectionData = this.countyData.filter(c => this.sortsState.countyFips.has(c.fipsCode));
+        this.sortData = this.countyData.filter(c => this.sortsState.stateFips.has(c.state));
+
+      };
+    });
   }
 
   setScales(): void {
@@ -77,17 +86,13 @@ export class BarChartComponent implements OnInit {
     //   this.yScale.domain([...Array(5).keys()].map((i: number) => {
     //     return this.countyData[i].countyName  
     //   }))  
-    if (this.sortsState.countyFips.length > 0) {
+    if (this.sortsState.countyFips.size > 0) {
       this.yScale.domain(this.selectionData.map((c: CountyData) => {
-          return c.countyName  
-        }))  
+          return c.fipsCode  
+      }))
+        .range([0, this.selectionData.length * (this.DISORDER_COUNT + 1) * this.BAR_HEIGHT])
 
     }
-    // console.log(this.yScale.domain());
-
-  // const yForAxis = d3.scaleLinear()
-  //   .domain([0, d3.max(airQualityData, c => c.Emissions) + 1000])
-  //   .range([(part2Dims.height - (part2Margins.top + part2Margins.bottom)), 0]);
 
     this.xScale.domain([0, d3.max(this.countyData, 
       c => d3.max(c.metrics.disorder, d => d.value)) as number])
@@ -97,27 +102,26 @@ export class BarChartComponent implements OnInit {
       // .attr("transform", `translate(0,${7 * climateData.length})`)
       .call(d3.axisTop(this.xScale))
       // .attr("transform", (c: )`translate(0, ${this.yScale(this.)})`);
-      this.xGroup = this.g.append("text")
-      .attr("transform", `translate(0,0)`)
-      .text('Percentage of county population')
-      .attr('font-size',10)
-      .attr("transform", 'translate(90,-25)');
+      this.g.append("text")
+        .attr("transform", `translate(0,0)`)
+        .text('Percentage of county population')
+        .attr('font-size',10)
+        .attr("transform", 'translate(90,-25)');
 
     }
 
     if (!this.yGroup) {
       this.yGroup = this.g.append("g")
-      .call(this.yAxis)
-      .selectAll('.tick')
-      // .attr('transform', `translate(0, ${this.dims.height / this.yScale.domain().length})`)
+      .call(this.yAxis())
     }
 
     this.yGroup.transition()
-    .duration(1000)
-      .call(this.yAxis)
+      .duration(500)
+      .call(this.yAxis())
       .selectAll(".tick")
       .delay((_:any, i: number) => i * 20);
 
+    // this.yGroup.selectAll('.tick').text((c: string) => this.getCountyNameByFips(c));
 
 
   }
@@ -126,21 +130,22 @@ export class BarChartComponent implements OnInit {
     if (this.selectionData.length == 0) {
       return;
     }
-    const group = this.g.selectChildren('g.bars')
-      .data(this.selectionData)
+
+
+    const group = this.g.selectChildren('g.bar')
+      .data(this.selectionData, (d: CountyData) => d.fipsCode)
       // .data(this.selectionData, (d: CountyData) => d.countyName)
       .join(
         (enter: any) => enter.append('g')
-          .attr('class', 'bars')
-          .attr('transform', (c: CountyData, i: number) => `translate(0, ${this.yScale(c.countyName)})`)
-          .append('text')
-          .attr("transform", (c: CountyData, i: number) => `translate(-80, ${i * 11 + 30})`)
-          .attr("font-size", 10)
-          .text((c: CountyData) => c.countyName),
-        (update: any) => update.transition().duration(1000)
-          .attr('transform', (c: CountyData, i: number) => `translate(0, ${this.yScale(c.countyName)})`)
+          .attr('class', 'bar')
+          .attr('transform', (c: CountyData, i: number) => `translate(0, ${this.yScale(c.fipsCode)})`)
           .selection(),
-        (exit: any) => exit,
+        (update: any) => update.transition().duration(500)
+          .attr('transform', (c: CountyData, i: number) => `translate(0, ${this.yScale(c.fipsCode)})`)
+          .selection(),
+        (exit: any) => exit
+          .attr('transform', (c: CountyData, i: number) => `translate(0, ${this.yScale(c.fipsCode)})`)
+          .selection(),
       )
 
     // group.selectChildren('text')
@@ -161,17 +166,20 @@ export class BarChartComponent implements OnInit {
       .join(
         (enter: any) => enter.append('rect')
           .attr("fill", (d: CountyDataItem, i: number) => this.colorScale(i))
+          .attr("height", this.BAR_HEIGHT)
           .attr("width", (d: CountyDataItem) => this.xScale(d.value))
-          .attr("height", 10)
-          .attr("transform", (c: CountyDataItem, i: number) => `translate(0, ${i * 11})`),
-        (update: any) => update,
+          .attr("transform", (c: CountyDataItem, i: number) => `translate(0, ${i * (this.BAR_HEIGHT + 1)})`)
+          .transition(),
+        (update: any) => update.transition().duration(500)
+          .attr("width", (d: CountyDataItem) => this.xScale(d.value))
+          .selection(),
         (exit: any) => exit,  
       )
   }
 
   makeLegend(): void {
     if (!this.legend) {
-      this.legend = d3.select('div#quintiles').append('svg')
+      this.legend = d3.select('div#disorders-legend').append('svg')
       // .attr("width", this.part1Dims.width)
       .attr("height", 120);
     }
@@ -228,18 +236,46 @@ export class BarChartComponent implements OnInit {
     
   }
 
-  stateClicked(val: string): void {
-    this.sortsState.stateFips.push(val);
-    this.sortData = this.countyData.filter(c => this.sortsState.stateFips.find(s => s === c.state));
-    console.log(this.sortData)
-  }
-
-  countyClicked(val: string): void {
-    this.sortsState.countyFips.push(val);
-    this.selectionData = this.countyData.filter(c => this.sortsState.countyFips.find(s => s === c.fipsCode));
+  updateState(newState: SortQuery) {
+    this.dataService.updateBar(newState);
     this.setScales();
     this.drawGroups();
-    console.log(this.sortsState.countyFips);
+
+  }
+
+  addState(val: string): void {
+    this.sortsState.stateFips.add(val)
+    this.updateState(this.sortsState);
+  }
+
+  addCounty(val: string): void {
+    this.sortsState.countyFips.add(val);
+    this.updateState(this.sortsState);
+  }
+
+  getCountyNameByFips(fips: string): string {
+    const county = this.countyData.find(d => d.fipsCode === fips);
+    return county?.countyName + ', ' + county?.state;
+  }
+
+  removeState(val: string): void {
+    this.sortsState.stateFips.delete(val);
+    this.updateState(this.sortsState); // TODO shouldn't even have to pass in ths.state
+    console.log(this.sortData)
+    // this.sortsState.countyFips = new Set([...this.sortsState.countyFips].filter( f => this.countyData.find(co => co.fipsCode === f )?.state !== val ))
+  }
+
+  removeCounty(val: string): void {
+    this.sortsState.countyFips.delete(val);
+    this.updateState(this.sortsState);
+  }
+
+  inStateList(state: string): boolean {
+    return this.sortsState.stateFips.has(state);
+  }
+
+  inCountyList(county: string): boolean {
+    return this.sortsState.countyFips.has(county);
   }
 
 }

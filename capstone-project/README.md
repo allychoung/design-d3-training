@@ -38,7 +38,11 @@ To craft your narrative statements, first you have to understand the data you’
 
 - What research questions does your data visualization tool seek to answer?
 
+1. What is the correlation, if any, between SDOHs including poverty status, medicaid-eligible, and rural populations, and the access to mental health care, including MH providers and MH facilities.  
+
 - Who is the end-user for the data visualization and what are their research needs?
+
+Public health researchers and public policy officials. There should be 
 
 - How did you identify which metrics from the data set to use in the tool?
 

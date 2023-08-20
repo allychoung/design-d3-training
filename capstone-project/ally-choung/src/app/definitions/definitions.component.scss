@@ -1,7 +1,12 @@
-.everything {
-    overflow-y: scroll;
-    height: 40vh;
+.definitions {
+    display: flex;
+    flex-direction: column;
+    max-height: 20%;
     text-align: start;
+    .def-content {
+        max-height: fit-content;
+        overflow-y: auto;
+    }
 }
 
 p {
